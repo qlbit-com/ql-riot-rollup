@@ -1,0 +1,211 @@
+<application>
+<!-- application window -->
+  <ql-main height={ { menu: 3, toolbar: 2 } }>
+    <ql-menu slot='menu' items={ menu }/>
+    <ql-flex slot='toolbar' row>
+      <ql-button image='new'  tooltip='create new&#10;document' action={ createNewDocument }/>
+      <ql-button image='save' tooltip='save&#10;document'  action={ ()=>{ this.state.actions.save( this.state.document ) } }/>
+      <ql-divider/>
+      <ql-button image='run'  tooltip='run&#10;document'   action={ ()=>{ this.state.actions.run( this.state.document ) } }/>
+      <ql-spacer/>
+      <ql-button image='user' tooltip='login' action={ ()=>{ this.modal( 'ql-login', { userinfo : state.userinfo, login : state.actions.login } ) } }/>
+    </ql-flex>
+
+    <ql-split slot='main' sizes={[30,50,20]}>
+      <ql-split slot='1' row sizes={[30,20,20]}>
+        <div slot='1'>
+          <h2>You can:</h2>
+          <ul>
+            <li>click on menu items, change fullscreen mode</li>
+            <li>drag borders to resize components, resize window to see component shape change</li>
+            <li>hit toolbar buttons -- observe log updated</li>
+            <li>type something in "Editor" tab and hit run button above</li>
+            <li>click tabs and watch YouTube videos</li>
+          </ul>
+        </div>
+        <div slot='2'>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero.
+          Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis
+          ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia
+          arcu eget nulla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos
+          himenaeos.
+        </div>
+        <a slot='3'>
+          code is available here <br/>
+          <a href="https://github.com/qlbit-com/ql-riot">https://github.com/qlbit-com/ql-riot</a>
+        </a>
+      </ql-split>
+
+      <ql-split slot='2' row sizes={[20,30,50]}>
+        <div slot='tree'>
+          <ql-tree slot='Documents' tree={ state.documents } actions={ state.fileActions }/>
+        </div>
+        <div slot='tree1'>
+          <ql-tree slot='Documents1' tree={ state.documents } actions={ state.fileActions }/>
+        </div>
+        <ql-tabs slot='tabs' name='mytabs'>
+          <div slot='First tab' style='overflow-y:auto'>
+            <h2>Alternative text</h2>
+            <p>The alt attribute should reflect the image content, so users who cannot see the image gets
+              an understanding of what the image contains:</p>
+            <img src="https://www.w3schools.com/html/img_chania.jpg" alt="Flowers in Chania" width="460" height="345">
+          </div>
+          <div slot='Wikipedia'>
+            <iframe width="100%" height="100%" src="https://en.wikipedia.org/wiki/JavaScript"/>
+          </div>
+          <div slot='YouTube: robots'>
+            <embed src="https://www.youtube.com/embed/y3RIHnK0_NE?autoplay=1" width="100%" height="100%" title="youtube"/>
+          </div>
+          <iframe slot="Youtube: ten-ten-ten" src="https://www.youtube.com/embed/8Ze6ZMkT2Z4"/>
+          <ql-textarea slot='Editor' document={ state.document }></ql-textarea> 
+        </ql-tabs>
+      </ql-split>
+      <ql-log slot='log' state={ state }></ql-log>
+    </ql-split>
+    <ql-flex slot='status' row>
+      <div style='white-space:nowrap;'>{state.status}</div>
+      <ql-spacer/>
+    </ql-flex>
+  </ql-main>
+
+  <style>
+    .center {
+      width: 100% !important;
+      height: 100% !important;
+      padding-top: 50% !important;
+    }
+  </style>
+
+  <script>
+    import axios from 'axios'
+    import { mount as riotMount } from 'riot'
+    export default {
+      state : {
+        documents : {},
+        document  : { name: 'foo', text: 'this is text document' },
+        userinfo  : { username : 'anonymous' }
+      },
+
+      modal( name, spec ) {
+        const el = document.createElement( name )
+        document.body.appendChild( el )
+        //todo: https://stackoverflow.com/questions/50178419/how-can-restrict-the-tab-key-press-only-within-the-modal-popup-when-its-open
+        riotMount( el, spec )
+      },
+
+      createNewDocument() {
+        this.update( { document: { name: null, text: '' }, log: 'empty document created' } )
+      },
+
+      printLog( log, status ) {
+        this.update( { log : log, status : status || log } )
+      },
+
+      onBeforeMount() {
+        //DP: https://livecodestream.dev/post/how-to-master-http-requests-with-axios/
+        axios.defaults.baseURL = "https://example.com";
+        const headers = axios.defaults.headers.common
+        headers['Content-Type'] = 'application/json'
+
+        this.state.scope = this
+        this.state.actions = {
+          load : ( doc ) => {
+            this.state.document = doc
+            //DP: pretty print
+            this.printLog( 'document loaded: ' + JSON.stringify( doc, null, '    ' ) )
+          },
+          run  : ( doc, failCallback = ()=>{} ) => {
+            this.printLog( 'run triggered. document: ' + doc.text )
+            /*DP: your server call to run*/
+          },
+          save : ( doc, failCallback = ()=>{} ) => {
+            this.printLog( 'save triggered: document: ' + doc.text )
+
+/*DP: your server call to save your document
+            this.printLog( 'saving document ' + JSON.stringify( data ) )
+            const request = doc.id ? axios.put : axios.post
+            const url     = '/v0/db/doc' + ( doc.id ? '/' + doc.id : '' )
+            request( url, data )
+              .then( ( response ) => {
+                if( response.data.id ) {
+                  Object.assign( doc, response.data )
+                }
+                this.printLog( 'saved successfully' )
+                failCallback( null )
+              } )
+              .catch( ( error ) => {
+                if( 404 == error.response.status )
+                  delete doc.id //DP: if 404 and no id -- then original document was deleted -- need to create it again
+                const errorMessage = error.response.statusText + ' ' + error.response.data
+                this.printLog( 'save failed: ' + errorMessage )
+                failCallback( errorMessage )
+              } )
+*/
+          },
+          login : ( credentials, failCallback = ()=>{} )=> {
+            this.printLog( 'login triggered; username = ' + credentials.username )
+            this.state.userinfo.username = credentials.username //DP: do not store the password
+            //DP: call server, server to provide cookie for authenticated communication
+            failCallback( null ) //no errors
+/*
+            axios.post( '/v0/api/login', {}, { auth : credentials } )
+              .then( ( response ) => {
+                this.state.userinfo = response.data
+                failCallback( null )
+              } )
+              .catch( ( error ) => {
+                failCallback( error.response.data )
+              } )
+*/
+          }
+        }
+        const actions = this.state.actions
+        this.state.fileActions = {
+          run     : actions.run,
+          load    : actions.load
+        }
+
+        const element = document.documentElement //DP: fullscreen which does not close on ESC key --> press F11
+        const fsOpen = element.requestFullscreen || element.webkitRequestFullscreen || element.msRequestFullscreen
+        const fsClose = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen
+        const toggleFullscreen = ()=>{ document.fullscreenElement ? fsClose.call( document ) : fsOpen.call( element ) }
+
+        this.menu = [
+          {
+            title : 'Document',
+            menu  : [
+              { title  : 'Create new', action : this.createNewDocument },
+              { title  : 'Save',       action : ()=>{ this.state.actions.run( this.state.document ) } }
+            ]
+          },
+          {
+            title : 'View',
+            menu  : [
+              { title  : 'Toggle Full Screen [or press F11]', action : toggleFullscreen },
+            ]
+          },
+          {
+            title : 'Help',
+            menu  : [
+              { title: 'Terms of use',   action: ()=>{ this.modal( 'ql-modal', { header: 'Terms of Use',   url: '/terms.html' } ) } },
+              { title: 'Privacy policy', action: ()=>{ this.modal( 'ql-modal', { header: 'Privacy policy', url: '/privacy.html'} ) } },
+              { title: 'About',          action: ()=>{ this.modal( 'ql-modal', { header: 'About',          url: '/about.html'} ) } }
+            ]
+          }
+        ]
+      },
+      onMounted()
+      {
+        this.state.actions.login( this.state.userinfo ) //DP: cookie will be used if any
+        axios.get( './documents.json' )
+          .then( ( response ) => {
+            this.printLog( 'documents loaded' )
+            this.update( { documents : response.data } )
+          } )
+          .catch( ( error ) => {
+            this.printLog( 'documents not loaded failure: ' + error.response.data )
+          } )
+      }
+    }
+  </script>
+</application>

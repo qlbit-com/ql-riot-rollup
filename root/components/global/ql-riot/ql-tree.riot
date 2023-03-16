@@ -1,0 +1,264 @@
+<ql-tree>
+  <div is='ql-flex' style='height: { toolbarHeight }; width: 100%; color: white; background-color: lightgray' row>
+    <ql-button image='sort_asc'  action={ sortAscending } }/>
+    <ql-button image='sort_desc' action={ sortDescending }/>
+    <ql-divider/>
+    <ql-button image='expand' action={ expand }/>
+    <ql-button image='collapse' action={ collapse }/>
+  </div>
+  <div style='overflow:auto; padding:.3em; height:calc( 100% - { toolbarHeight } ); height: -moz-calc( 100% - { toolbarHeight } ); height: -webkit-calc( 100% - { toolbarHeight } ); width: 100%;'>
+    <ol class="tree"/>
+  </div>
+
+  <style>
+    .tree {
+      padding: 0em;
+      margin: 0px;
+      width: 100%;
+    }
+    li {
+      position: relative;
+      list-style: none;
+    }
+    li > input {
+      display: none;
+      position: absolute;
+    }
+    li > input + label + ol {
+      display: none;
+    }
+    li > input + label {
+      white-space: nowrap;
+      cursor: pointer;
+      display: inline-block;
+    }
+    li  > input + label:hover {
+      background-color: rgb(170, 165, 255);
+    }
+    li > input + label > i {
+      color: gray;
+      width: 1.3em;
+      text-align: center;
+      text-align: -moz-center;
+      text-align: -webkit-center;
+      padding-right: 0.5em;
+    }
+    /*DP: todo: make class instead just input to control icon in content, many document icons to render*/
+    li > input + label > i::before {
+      content: '\f07b';
+    }
+    li > input.doc1 + label > i::before {
+      content: '\f15b';
+    }
+    li > input.doc2 + label > i::before {
+      content: '\f1c9';
+    }
+    li > input.doc3 + label > i::before {
+      content: '\f15c';
+    }
+    li > input:checked + label > i::before {
+      content: '\f07c';
+    }
+    li > input:checked + label + ol {
+      display: block;
+      padding-left: 1em;
+      height: auto;
+    }
+
+    .ctxmenu {
+      z-index: 12;
+      position: fixed;
+      background:ghostwhite;
+      color: black;
+      cursor: pointer;
+      border: 1px black solid
+    }
+    .ctxmenu > p {
+      padding: 0 1rem;
+      margin: 0
+    }
+    .ctxmenu > p:hover {
+      background: black;
+      color: ghostwhite
+    }
+  </style>
+
+  <script>
+    export default {
+      onBeforeMount() {
+        //DP: global static window.QLTREE_UUID
+        this.UUID = window.QLTREE_UUID ? ++window.QLTREE_UUID : window.QLTREE_UUID = 1
+        this.id = 0
+        this.tree = null
+        this.toolbarHeight = '2em'
+      },
+
+      onMounted() {
+        this.onUpdated()
+      },
+
+      onUpdated() {
+        const disable = ( evt ) => {
+          evt.preventDefault()
+        }
+
+        const buildCtxMenu = ( evt, node ) => {
+          evt.preventDefault()
+          const menu = document.createElement( 'div' )
+          menu.classList.add( 'ctxmenu' )
+          menu.style.top = ( evt.pageY - 3 ) + 'px'
+          menu.style.left = ( evt.pageX - 10 ) + 'px'
+          menu.onblur = menu.onmouseleave = () => { evt.target.removeChild( menu ) }
+
+          for( const [ name, action ] of Object.entries( this.props.actions ) ){
+            const menuItem = document.createElement( 'p' )
+            menuItem.textContent = name
+            menuItem.onclick = ()=>{ action( node ); evt.target.removeChild( menu ) }
+            menu.appendChild( menuItem )
+          }
+
+          evt.target.appendChild( menu )
+          menu.focus()
+        }
+
+        const makeFile = ( id, node ) => {
+          const label = document.createElement( 'label' )
+          label.htmlFor = id
+          label.innerHTML = '<i class="far"></i>' + node.name  //DP: if document was renamed in place, this needs to be updated
+          label.onselectstart = disable
+          const input = document.createElement( 'input' )
+          input.type = 'checkbox'
+          input.id = id
+          input.disabled = !node.files
+          if( !node.files ) { //DP: if a file, not a folder
+            input.classList.add( 'doc3' )
+            label.ondblclick = ()=>{ this.props.actions.load( node ) }
+            label.oncontextmenu = ( evt ) => { buildCtxMenu( evt, node ) }
+          }
+          const file = document.createElement( 'li' )
+          file.appendChild( input )
+          file.appendChild( label )
+          return file
+        }
+
+        const fileName = ( node ) => {
+          return node.firstChild.nextSibling.textContent
+        }
+
+        const ascComparator = ( a, b ) => {
+          const folderCompare = a.firstChild.disabled - b.firstChild.disabled
+          return 0 == folderCompare ? fileName( a ).localeCompare( fileName( b ) ) : folderCompare
+        }
+
+        const sort = ( root ) => {
+          [ ...root.children ].sort( ascComparator ).forEach( node => root.appendChild( node ) )
+        }
+
+        const append = ( root, files ) => {
+          for( const [ name, node ] of Object.entries( files ) ) {
+            appendFile( root, node, null )
+          }
+        }
+
+        const appendFile = ( root, node, before ) => {
+          const files = node.files
+          const file = makeFile( this.UUID + '$' + this.id++, node )
+          root.insertBefore( file, before )
+          if( files && Object.keys( files ).length ) {  //DP: is a folder
+            const next = document.createElement( 'ol' )
+            file.appendChild( next )
+            append( next, files )
+          }
+        }
+
+        const merge = ( root, files ) => {
+          for( const child of [...root.children] ) {
+            const childIsFile = child.firstChild.disabled
+            const name = fileName( child )
+            const node = files[ name ]
+            if( !node ) {
+              root.removeChild( child )
+              continue;
+            }
+            const nodeIsFile = !node.files
+            if( childIsFile == nodeIsFile ) {
+              if( !childIsFile )
+                merge( child.firstChild.nextSibling.nextSibling, node.files )
+              delete files[ name ]
+              continue
+            }
+            appendFile( root, node, child )
+            delete files[ name ]
+            root.removeChild( child )
+          }
+          append( root, files )
+          sort( root )
+        }
+        if( this.tree === this.props.tree )
+          return
+        merge( this.root.lastChild.firstChild, this.props.tree )
+        this.tree = this.props.tree
+      },
+
+      traverse( fileLogic, folderLogic ) {
+        const traverse = ( root ) => {
+          const children = [...root.children]
+          for( const child of children ) {
+            if( fileLogic )
+              fileLogic( child )
+            if( child.firstChild.disabled )
+              continue
+            traverse( child.firstChild.nextSibling.nextSibling )
+          }
+          if( folderLogic )
+            folderLogic( root, children )
+        }
+        traverse( this.root.lastChild.firstChild )
+      },
+
+      sortAscending() {
+        const fileName = ( node ) => {
+          return node.firstChild.nextSibling.textContent
+        }
+        const ascComparator = ( a, b ) => {
+          const folderCompare = a.firstChild.disabled - b.firstChild.disabled
+          return 0 == folderCompare ? fileName( a ).localeCompare( fileName( b ) ) : folderCompare
+        }
+        const sort = ( root, children ) => {
+          children.sort( ascComparator ).forEach( node => root.appendChild( node ) )
+        }
+        this.traverse( null, sort )
+      },
+
+      sortDescending() {
+        const fileName = ( node ) => {
+          return node.firstChild.nextSibling.textContent
+        }
+        const descComparator = ( a, b ) => {
+          const folderCompare = a.firstChild.disabled - b.firstChild.disabled
+          return 0 == folderCompare ? -1 * fileName( a ).localeCompare( fileName( b ) ) : folderCompare
+        }
+        const sort = ( root, children ) => {
+          children.sort( descComparator ).forEach( node => root.appendChild( node ) )
+        }
+        this.traverse( null, sort )
+      },
+
+      expand() {
+        const expand = ( file ) => {
+          if( !file.firstChild.disabled )
+            file.firstChild.checked = true
+        }
+        this.traverse( expand )
+      },
+
+      collapse() {
+        const collapse = ( file ) => {
+          if( !file.firstChild.disabled )
+            file.firstChild.checked = false
+        }
+        this.traverse( collapse )
+      }
+    }
+  </script>
+</ql-tree>

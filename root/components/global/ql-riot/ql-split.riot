@@ -1,0 +1,126 @@
+<ql-split>
+  <div class='{ splitClass } ql-split'>
+    <template each={ ( slot, index ) in slots }>
+      <div style='{ size }: { sizes[ index ] }%;'>
+        <template is='ql-slot' slt={ slot } ctx={ context }/>
+      </div>
+      <div if={ index + 1 < slots.length } onmousedown={ ( evt ) => dragStart( evt, index ) } draggable='false'/>
+    </template>
+  </div>
+
+  <style>
+    .ql-split {
+      width: 100% !important;
+      height: 100% !important;
+      display: flex !important;
+    }
+    .ql-split-col {
+      flex-direction: column !important
+    }
+    .ql-split-row {
+      flex-direction: row !important
+    }
+    .ql-split > div {
+      position: relative !important;
+      clear: both !important;
+      overflow: hidden !important;
+    }
+    .ql-split-col > div:nth-child(even) {
+      background: lightgray;
+      cursor: ns-resize !important;
+      height: 5px !important
+    }
+    .ql-split-row > div:nth-child(even) {
+      background: lightgray;
+      cursor: ew-resize !important;
+      width : 5px !important
+    }
+  </style>
+
+  <script>
+    import { __ as riotAPI } from 'riot'
+
+    export default {
+      get context() {
+        return this[ riotAPI.globals.PARENT_KEY_SYMBOL ]
+      },
+      onBeforeMount() {
+        const orientIndex = undefined === this.props.row ? 0 : 1
+        this.splitClass = [ 'ql-split-col', 'ql-split-row' ][ orientIndex ]
+
+        const orient = [
+          { size : 'height', clientSize : 'clientHeight', axis : 'y' } ,
+          { size : 'width',  clientSize : 'clientWidth',  axis : 'x' }
+        ][ orientIndex ]
+
+        Object.assign( this, orient )
+        this.disableSelect = ( evt ) => { evt.preventDefault() }
+
+        this.sizes = this.normalizeSizes( this.props.sizes )
+      },
+      normalizeSizes( sizes ) {
+        if( !sizes ) //DP: equal distribution if not provided
+          return Array( this.slots.length ).fill( 100.0 / this.slots.length )
+        const result = [...sizes]
+        if( result.length > this.slots.length ) //DP: remove extra elements [if any] from sizes array
+          result.length = this.slots.length
+        const sum = result.reduce( ( res, val ) => res + val, 0.0 )
+        result.forEach( ( val, idx ) => result[ idx ] = ( val / sum ) * 100.0 )
+        const delta = sum > 100.0 ? 0 : ( 100.0 - sum )/( this.slots.length - result.length )
+        while( result.length < this.slots.length )
+          result.push( delta )
+        return result
+      },
+      switch( action ) {
+        const winListener = window[ action ]
+        winListener( 'selectstart', this.disableSelect )
+        winListener( 'mousemove', this.drag )
+        winListener( 'touchmove', this.drag )
+        winListener( 'mouseup', this.stopDrag )
+        winListener( 'touchend', this.stopDrag )
+        winListener( 'touchcancel', this.stopDrag )
+      },
+      dragStart( evt, idx ) {
+        if( this.dragTag )
+          return
+        this.dragTag = evt.target
+        this.dragIdx = idx
+        this.lastValue = evt[ this.axis ]
+        this.switch( 'addEventListener' )
+        document.body.style.pointerEvents = 'none' //DP: to prevent mouse event hijacked by iframe\embed\etc
+      },
+      drag( evt ) {
+        const prev = this.dragTag.previousElementSibling
+        const next = this.dragTag.nextElementSibling
+        const prevClientSize = prev[ this.clientSize ]
+        const nextClientSize = next[ this.clientSize ]
+        if( prevClientSize + nextClientSize < 1 ) { //DP: could happen after container resize
+          this.stopDrag()
+          return
+        }
+        const delta = evt[ this.axis ] - this.lastValue
+        const total = this.sizes[ this.dragIdx ] + this.sizes[ this.dragIdx + 1 ]
+        //DP: use bigger denominator get correct division results when adjusting sizes
+        if( prevClientSize > nextClientSize ) {
+          var sz = this.sizes[ this.dragIdx ] * ( 1 + delta / prevClientSize )
+          if( sz < 0.01 )         sz = 0
+          if( sz > total - 0.01 ) sz = total
+          next.style[ this.size ] = ( this.sizes[ this.dragIdx + 1 ] += this.sizes[ this.dragIdx ] - sz ) + '%'
+          prev.style[ this.size ] = ( this.sizes[ this.dragIdx ] = sz ) + '%'
+        } else {
+          var sz = this.sizes[ this.dragIdx + 1 ] * ( 1 - delta / nextClientSize )
+          if( sz < 0.01 )         sz = 0
+          if( sz > total - 0.01 ) sz = total
+          prev.style[ this.size ] = ( this.sizes[ this.dragIdx ] += this.sizes[ this.dragIdx + 1 ] - sz ) + '%'
+          next.style[ this.size ] = ( this.sizes[ this.dragIdx + 1 ] = sz ) + '%'
+        }
+        this.lastValue = evt[ this.axis ]
+      },
+      stopDrag( evt ) {
+        this.switch( 'removeEventListener' )
+        this.dragTag = null
+        document.body.style.pointerEvents = 'auto' //DP: to release normal pointer events; see dragStart() above
+      }
+    }
+  </script>
+</ql-split>

@@ -1,0 +1,40 @@
+{
+  "folder1": {
+    "name": "folder1",
+    "files": {
+      "file11": {
+        "name": "file11",
+        "text": "text11"
+      },
+      "file21": {
+        "name": "file21",
+        "text": "text21"
+      }
+    }
+  },
+  "folder2": {
+    "name": "folder2",
+    "files": {
+      "file21": {
+        "name": "file21",
+        "text": "text21"
+      },
+      "file22": {
+        "name": "file22",
+        "text": "text22"
+      }
+    }
+  },
+  "file1": {
+    "name": "file1",
+    "text": "text1"
+  },
+  "file2": {
+    "name": "file2",
+    "text": "text2"
+  },
+  "file3": {
+    "name": "file3",
+    "text": "text3"
+  }
+}

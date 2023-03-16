@@ -1,0 +1,16 @@
+<ql-modal>
+  <ql-dialog close={ close } header={ state.header || props.header } ok='Ok' action={ close }>
+    <pre if={ props.content } style='overflow: auto; margin: 0px; width: 100%; height: 100%;'>{ props.content }</pre>
+    <iframe if={ props.url } src={ this.props.url } style='border: 0px; width: 100%; height: 100%;' onload={ load }/>
+  </ql-dialog>
+  <script>
+    export default {
+      load( evt ) {
+        this.update( { header : evt.target.contentWindow.document.title } )
+      },
+      close() {
+        this.unmount()
+      }
+    }
+  </script>
+</ql-modal>

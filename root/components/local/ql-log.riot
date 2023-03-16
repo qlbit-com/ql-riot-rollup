@@ -1,0 +1,56 @@
+<ql-log>
+  <div is='ql-flex' style='width: 100%; height: 100%;' row>
+    <div is='ql-flex' style='width: { tb }; height: 100%; color: white; background-color: lightgray'>
+      <ql-button image='delete'  action={ deleteLog }/>
+      <ql-button image='export'  action={ copyLog }/>
+    </div>
+    <div is='ql-flex' style='overflow:auto; width:calc( 100% - { tb } ); width: -moz-calc( 100% - { tb } ); width: -webkit-calc( 100% - { tb } ); height: 100%;'/>
+  </div>
+
+  <script>
+    export default {
+      onBeforeMount() {
+        this.tb = '2em'
+      },
+      onMounted() {
+        this.logElement = this.root.firstChild.lastChild.lastChild.firstChild //DP: see html layout above
+      },
+      onUpdated() {
+        const msg = this.props.state.log
+        if( !msg )
+          return
+        this.props.state.log = null
+        this.log( msg )
+      },
+      log( msg ) {
+        const el = document.createElement( 'pre' )
+
+        //DP: for date-time manipulation: https://www.toptal.com/software/definitive-guide-to-datetime-manipulation
+        const today = new Date().toLocaleString( 'en-US', {
+          // day:   'numeric',
+          // month: 'short',
+          // year:  'numeric',
+          hour  : '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+
+        el.innerHTML = today + ' | ' + msg
+        el.style.margin = '0.1em'
+        this.logElement.appendChild( el )
+        el.scrollIntoView();
+      },
+      deleteLog() {
+        this.logElement.innerHTML = ''
+      },
+      copyLog() {
+        const logContent = []
+        for( const el of this.logElement.children )
+          logContent.push( el.textContent )
+
+        navigator.clipboard.writeText( logContent.join( '\n' ) ).then( () => {} )
+        this.log( 'log was copied to clipboard' )
+      }
+    }
+  </script>
+</ql-log>

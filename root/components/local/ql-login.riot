@@ -1,0 +1,39 @@
+<ql-login>
+  <ql-dialog close={ close } header='Login' cancel='Cancel' ok='Login' action={ login } status={ state.message }>
+    <sub><label style='display:inline-block' for='usernameId'>EMail</label></sub><br/>
+    <input style='width: 100%;' id='usernameId' type='text' required
+           name='username' value={ state.userinfo.username } onblur={ set }/>
+    <sub><label style='display:inline-block' for='passwordId'>Password</label></sub><br/>
+    <input style='width: 100%;' id='passwordId' type='password' required
+           name='password' value={ state.userinfo.password } onblur={ set }/>
+  </ql-dialog>
+  <script>
+    export default {
+      state : {
+        message  : ''
+      },
+      close() {
+        this.unmount()
+      },
+      onBeforeMount() {
+        this.state.userinfo = {
+          username : this.props.userinfo.username || '',
+          password : '' //DP: user will enter the password each time from scratch
+        }
+      },
+      set( event ) {
+        const target = event.target
+        this.state.userinfo[ target.name ] = target.value;
+      },
+      login() {
+        const callback = ( message ) => {
+          if( message ) //DP: if error
+            this.update( { message: message } )
+          else          //DP: if no error
+            this.close()
+        }
+        this.props.login( this.state.userinfo, callback )
+      }
+    }
+  </script>
+</ql-login>

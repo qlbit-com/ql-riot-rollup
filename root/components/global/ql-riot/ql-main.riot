@@ -1,0 +1,46 @@
+<ql-main>
+  <div if={ height.menu > 0 } style='height: {height.menu}em' class='ql-main-section'>
+    <slot name='menu'/>
+  </div>
+  <div if={ height.toolbar > 0 } style='height: {height.toolbar}em' class='ql-main-section'>
+    <slot name='toolbar'/>
+  </div>
+  <div if={ height.toolbar > 0 } class='ql-main-divider'/>
+  <div style={mainStyle} class='ql-main-calc ql-main-content'>
+    <slot name='main'/>
+  </div>
+  <div if={ height.status > 0 } class='ql-main-divider'/>
+  <div if={ height.status > 0 } style='height: {height.status}em' class='ql-main-section'>
+    <slot name='status'/>
+  </div>
+
+  <style>
+    .ql-main-section {
+      width: 100% !important;
+      background: lightgray !important;
+    }
+    .ql-main-divider {
+      width: 100% !important;
+      height: 1px !important;
+      background: gray !important;
+    }
+  </style>
+
+  <script>
+    export default {
+      onBeforeMount() {
+        this.onBeforeUpdate()
+      },
+      onBeforeUpdate() {
+        const def = { menu: 3, toolbar: 2, status: 1.2 }
+        const hght = this.props.height || {}
+        const calcHeights = ( res, slot ) => { res[ slot.id ] = hght[ slot.id ] || def[ slot.id ] || 0; return res; }
+        this.height = this.slots.reduce( calcHeights, {} )
+        const calcHeight = this.height.menu + this.height.toolbar + this.height.status
+        const dividerHeight = ( this.height.toolbar > 0 ? 1 : 0 ) + ( this.height.status > 0 ? 1 : 0 )
+        const mainHeight = `calc( 100% - ${calcHeight}em - ${dividerHeight}px )`
+        this.mainStyle = `height: -webkit-${mainHeight}; height: -moz-${mainHeight}; height: ${mainHeight};`
+      }
+    }
+  </script>
+</ql-main>

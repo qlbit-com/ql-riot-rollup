@@ -1,0 +1,39 @@
+<ql-flex>
+  <div class='ql-flex {flexClass}'>
+    <slot/>
+  </div>
+
+  <style>
+    .ql-flex {
+      width: 100% !important;
+      height: 100% !important;
+    }
+    .ql-flex-row {
+      display: flex !important;
+      flex-direction: row !important;
+    }
+    .ql-flex-row > * {
+      position: relative !important;
+      clear: both !important;
+    }
+    .ql-flex-col {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    .ql-flex-col > * {
+      position: relative !important;
+      clear: both !important;
+    }
+  </style>
+
+  <script>
+    export default {
+      onBeforeMount() {
+        this.onBeforeUpdate()
+      },
+      onBeforeUpdate() {
+        this.flexClass = undefined === this.props.row ? 'ql-flex-col' : 'ql-flex-row'
+      }
+    }
+  </script>
+</ql-flex>

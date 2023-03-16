@@ -1,0 +1,117 @@
+<ql-button>
+  <button style={ props.size ? `height: ${props.size}; width: ${props.size};` : null }
+          class='ql-button { imageClass[ props.image ] }'
+          title={ props.tooltip }
+          onclick={ props.action }
+          disabled={ props.disabled }/>
+
+  <style>
+    .ql-button {
+      height: 2em;
+      width: 2em;
+      padding: 0px;
+      margin: 0px;
+      color: inherit;
+      background-color: inherit;
+      /*      background-color: lightgray; */
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 1em;
+      cursor: pointer;
+      border: 0px;
+    }
+    .ql-button:hover {
+      background-color: rgb(170, 165, 255);
+    }
+    .ql-button:active {
+      background-color: gray;
+    }
+    .ql-button[disabled]:hover {
+      background-color: inherit;
+      cursor: not-allowed;
+    }
+    /*
+    .fa-rotate-45 {
+      -webkit-transform: rotate(45deg);
+      -moz-transform: rotate(45deg);
+      -ms-transform: rotate(45deg);
+      -o-transform: rotate(45deg);
+      transform: rotate(45deg);
+    }*/
+  </style>
+
+  <script>
+    //DP: current icons used from fontawesome
+    //DP: possible use https://www.flaticon.com/uicons
+    export default {
+      // fa-2x for size
+      imageClass : {
+        new:       'fas fa-file',
+        open:      'fas fa-folder-open',
+        save:      'fas fa-save',
+        copy:      'fas fa-copy',
+        paste:     'fas fa-paste',
+        edit:      'fas fa-edit',
+        import:    'fas fa-file-import',
+        export:    'fas fa-file-export',
+
+        group:     'fas fa-object-group',
+        ungroup:   'fas fa-object-ungroup',
+
+        run:       'fas fa-play',        //'far fa-play-circle',
+        pause:     'fas fa-pause',       //'far fa-pause-circle',
+        stop:      'fas fa-stop',        //'far fa-stop-circle',
+
+        user:      'fas fa-user',        //'far fa-user-circle'
+        ghost_user:'fas fa-ghost',
+        business_user: 'fas fa-user-tie',
+        anonymous_user:'fas fa-user-secret',
+        users:     'fas fa-users',
+
+        reload:    'fas fa-sync',
+
+        piechart:  'fas fa-chart-pie',
+        linechart: 'fas fa-chart-line',
+
+        findoc:    'fas fa-file-invoice-dollar',
+
+        user_home: 'fas fa-house-user',
+        plug:      'fas fa-plug',
+
+        tag:       'fas fa-tag',
+        tags:      'fas fa-tags',
+
+        lock:      'fas fa-lock',
+        unlock:    'fas fa-unlock-alt',
+
+        scheduler: 'fas fa-calendar-alt',
+        bug:       'fas fa-bug',
+        spider:    'fas fa-spider',
+
+        diagram:   'fas fa-project-diagram',
+        shapes:    'fas fa-shapes',
+        snowman:   'fas fa-snowman',
+        robot:     'fas fa-robot',
+
+        crosshair: 'fas fa-crosshairs',//target
+
+        info:      'fas fa-info-circle',
+
+        sort_asc:  'fas fa-sort-amount-down-alt', //'fas fa-sort-alpha-down',
+        sort_desc: 'fas fa-sort-amount-down',     //'fas fa-sort-alpha-up-alt'
+
+        expand:    'fas fa-expand-alt',
+        collapse:  'fas fa-compress-alt',
+
+        delete:    'fas fa-trash-alt',
+
+        facebook:  'fab fa-facebook',
+        twitter:   'fab fa-twitter',
+        linkedin:  'fab fa-linkedin-in',
+        telegram:  'fab fa-telegram-plane',
+        email:     'fas fa-at'
+      }
+    }
+  </script>
+</ql-button>

@@ -1,0 +1,57 @@
+<!--
+  Renders slot on demand.
+  Usage:
+      <div class='tab' each={ ( slot, index ) in slots }>
+        ....
+        <template is='ql-slot' slt={ slot } ctx={ context }/>
+      </div>
+
+  context to be extracted in onBeforeMount() see below and passed into ql-slot see above
+    <script>
+      import { __ as riotAPI } from 'riot'
+
+      export default {
+        get context() {
+          return this[ riotAPI.globals.PARENT_KEY_SYMBOL ]
+        }
+        .......
+      }
+  </script>
+-->
+<ql-slot>
+  <script>
+    import { pure, __ as riotAPI } from 'riot'
+    import getProps from 'riot-pure-props';
+
+    export default pure( ( { attributes, slots, props } ) => ( {
+      mount( root, context ) {
+        this.root = root
+        this.props = getProps( root, context, attributes, props )
+
+        const slot = this.props.slt  //DP: slt is passed as argument
+
+        if( slot ) {
+          const tmp = document.createElement( 'template' );
+          tmp.innerHTML = slot.html;
+          const fragment = tmp.content;
+          this.templates = slot.bindings.map( ( binding ) => riotAPI.DOMBindings.createBinding( fragment, binding ) )
+          if( this.root.tagName.toLowerCase() === 'template' ) {
+            this.root.parentNode.insertBefore( fragment, this.root )
+            this.root.parentNode.removeChild( this.root )
+          } else {
+            this.root.appendChild( fragment )
+          }
+        }
+        this.update()
+      },
+      update() {
+        if( this.templates ) {
+          this.templates.forEach( template => template.update( this.props.ctx ) ) //DP: ctx is passed as argument
+        }
+      },
+      unmount() {
+        this.root.parentNode.removeChild( this.root )
+      }
+    }))
+  </script>
+</ql-slot>

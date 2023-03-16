@@ -1,0 +1,78 @@
+<ql-menu>
+  <ul class='ql-menu'>
+    <li each={item in props.items}>
+      <a onmouseover={showMenu} onclick={item.action}>{item.title}</a>
+      <div>
+        <a each={sub in item.menu} onmouseup={hideMenu} onclick={sub.action}>{sub.title}</a>
+      </div>
+    </li>
+  </ul>
+
+  <style>
+    .ql-menu {
+      z-index: 8 !important;
+      width: 100% !important;
+      height: 100% !important;
+      list-style-type: none;
+      margin: 0px;
+      padding: 0px;
+      overflow: hidden;
+      background-color: #000000;
+    }
+    .ql-menu > li {
+      z-index: 8 !important;
+      display: inline-block;
+    }
+    .ql-menu > li:hover > a {
+      z-index: 8 !important;
+      background-color: rgb(170, 165, 255);
+    }
+    .ql-menu > li:hover > div {
+      z-index: 8 !important;
+      display: block;
+    }
+    .ql-menu > li > a  {
+      z-index: 8 !important;
+      cursor: pointer;
+      display: inline-block;
+      color: white;
+      text-align: center;
+      margin: 0px;
+      height: 3em;
+      padding: 1em 1em;
+      text-decoration: none;
+    }
+    .ql-menu > li > div {
+      z-index: 8 !important;
+      display: none;
+      position: absolute;
+      background-color: #f9f9f9;
+      min-width: 10em;
+      box-shadow: 0 0.5em 1em 0 rgba(0, 0, 0, 0.2);
+    }
+    .ql-menu > li > div > a {
+      z-index: 8 !important;
+      cursor: pointer;
+      color: black;
+      padding: 0.5em 0.5em;
+      margin: 0px;
+      text-decoration: none;
+      display: block;
+      text-align: left;
+    }
+    .ql-menu > li > div > a:hover {
+      background-color: rgba(170, 165, 255, 0.6)
+    }
+  </style>
+
+  <script>
+    export default {
+      showMenu( evt ) {
+        evt.target.nextSibling.style.display = ''
+      },
+      hideMenu( evt ) {
+        evt.target.parentElement.style.display = 'none'
+      }
+    }
+  </script>
+</ql-menu>

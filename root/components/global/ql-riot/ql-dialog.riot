@@ -1,0 +1,111 @@
+<ql-dialog>
+  <div style={ props.hidden ? 'display: none' : null } class='ql-dialog'>
+    <div class='ql-dialog-header'>
+      <span class='close' onclick={ props.close }>&times;</span>
+      <h2>{ props.header }</h2>
+    </div>
+    <div class='ql-dialog-body'>
+      <slot/>
+    </div>
+    <div class='ql-dialog-footer'>
+      <div>
+        { props.status }
+      </div>
+      <div style='text-align: right;'>
+        <button if={ props.cancel } class='button' onclick={ props.close }>
+          { props.cancel }
+        </button>
+        <button if={ props.ok } class='button' onclick={ props.action }>
+          { props.ok }
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    :host {
+      /* display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 5; /* Sit on top */
+      padding-top: 100px; /* Location of the box */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgb(0,0,0); /* Fallback color */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+    .ql-dialog {
+      position: relative;
+      background-color: #fefefe;
+      margin: auto;
+      padding: 0;
+      border: 1px solid #888;
+      width: 60%;
+      height: 80%;
+      box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+      -webkit-animation-name: animatetop;
+      -webkit-animation-duration: 0.4s;
+      animation-name: animatetop;
+      animation-duration: 0.4s
+    }
+    @-webkit-keyframes animatetop {
+      from { top:-300px; opacity:0 }
+      to   { top:0; opacity:1 }
+    }
+    @keyframes animatetop {
+      from { top:-300px; opacity:0 }
+      to   { top:0; opacity:1 }
+    }
+    .close {
+      color: white;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .close:hover,
+    .close:focus {
+      color: #000;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .ql-dialog-header {
+      height: 4em;
+      padding: 2px 16px;
+      background-color: #5cb85c;
+      color: white;
+    }
+    .ql-dialog-body {
+      height: -webkit-calc( 100% - 8em );
+      height: -moz-calc( 100% - 8em );
+      height: calc( 100% - 8em );
+      padding: 2px 16px;
+      /*overflow: auto;*/
+    }
+    .ql-dialog-footer {
+      height: 4em;
+      padding: 2px 16px;
+      background-color: #5cb85c;
+      color: white;
+      display: flex;
+      flex-direction: row;
+    }
+    .ql-dialog-footer > * {
+      flex-grow: 1;
+      width: 40%;
+    }
+    .button {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 10px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+    }
+  </style>
+</ql-dialog>

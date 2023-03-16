@@ -1,0 +1,18 @@
+<ql-textarea>
+
+  <textarea class='ql-textarea' value={ props.document.text } onblur={ ( evt )=>{ props.document.text = evt.target.value } }/>
+
+  <style>
+    .ql-textarea {
+      width: 100% !important;
+      height: 100% !important;
+/*      padding-left: 7px !important;*/
+      padding: 0px !important;
+      resize: none !important;
+      border: 0px !important;
+      outline: none !important;
+      overflow: auto !important;
+      white-space: pre !important;
+    }
+  </style>
+</ql-textarea>

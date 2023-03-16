@@ -1,0 +1,57 @@
+<ql-table>
+  <table class='ql-table'>
+    <thead>
+      <tr>
+        <th each={col in this.columns}>{col}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr each={row in this.rows}>
+        <td each={col in this.columns}>{row[col]}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <style>
+    .ql-table {
+      width: 100% !important;
+      height: 100% !important;
+      font-family: Arial, Helvetica, sans-serif;
+      box-sizing: border-box !important;
+      border: 1px ;
+      border-spacing: 0px;
+    }
+    .ql-table > thead > tr > th {
+      position: sticky !important;          /* makes table header fixed and body */
+      position: -webkit-sticky !important;  /* scrollable inside scrollable container  */
+      top: 0px !important;                  /* idea taken from https://jsfiddle.net/hrg3tmxj/ */
+      padding: 1em !important;
+      text-align: left !important;
+      background-color: #4CAF50 !important;
+      color: white !important;
+    }
+    .ql-table > tbody > tr > td, .tbl > thead > tr > th {
+      border-left: 1px solid #ddd !important;
+      border-right: 1px solid #ddd !important;
+      padding: 0.5em !important;
+    }
+    .ql-table > tbody > tr:nth-child( even ) {
+      background-color: #f2f2f2 !important;
+    }
+    .ql-table > tbody > tr:hover {
+      background-color: #ddd !important;
+    }
+  </style>
+
+  <script>
+    export default {
+      onBeforeMount() {
+        this.onBeforeUpdate()
+      },
+      onBeforeUpdate() {
+        this.rows = this.props.json || []
+        this.columns = Object.keys( this.rows[ 0 ] || {} )
+      }
+    }
+  </script>
+</ql-table>
