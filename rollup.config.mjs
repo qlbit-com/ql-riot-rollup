@@ -9,8 +9,14 @@ console.log( `${ devMode ? 'development' : 'production' } mode bundle` )
 
 export default {
   input: './root/main.js',
+  watch: {
+    include: './root/**',
+    exclude: './root/js/**',
+    clearScreen: false
+  },
   output: {
     file: './root/js/bundle.js',
+    inlineDynamicImports: true,
     sourcemap: devMode ? 'inline' : false,
     format: 'iife',
     plugins: [
