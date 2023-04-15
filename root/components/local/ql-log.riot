@@ -44,12 +44,18 @@
         this.logElement.innerHTML = ''
       },
       copyLog() {
-        const logContent = []
+        const content = []
         for( const el of this.logElement.children )
-          logContent.push( el.textContent )
+          content.push( el.textContent )
 
-        navigator.clipboard.writeText( logContent.join( '\n' ) ).then( () => {} )
-        this.log( 'log was copied to clipboard' )
+        //DP: https://stackoverflow.com/questions/51805395/navigator-clipboard-is-undefined
+        //DP: https://web.dev/async-clipboard/
+        //DP: if copy to clipboard fails: in prod use HTTPS, in dev use localhost not 192.168.1.XX
+        const clipboard = navigator.clipboard
+        if( clipboard && window.isSecureContext )
+          clipboard.writeText( content.join( '\n' ) ).then( () => { this.log( 'log was copied to clipboard' ) } )
+        else
+          this.log( 'log failed to copy to clipboard' )
       }
     }
   </script>

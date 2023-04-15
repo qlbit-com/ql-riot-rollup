@@ -86,8 +86,8 @@
         userinfo  : { username : 'anonymous' }
       },
 
-      modal( name, spec ) {
-        const el = document.createElement( name )
+      modal( tagName, spec ) {
+        const el = document.createElement( tagName )
         document.body.appendChild( el )
         //todo: https://stackoverflow.com/questions/50178419/how-can-restrict-the-tab-key-press-only-within-the-modal-popup-when-its-open
         riotMount( el, spec )
@@ -103,7 +103,7 @@
 
       onBeforeMount() {
         //DP: https://livecodestream.dev/post/how-to-master-http-requests-with-axios/
-//        axios.defaults.baseURL = "https://example.com";
+        //axios.defaults.baseURL = "https://example.com";
         const headers = axios.defaults.headers.common
         headers['Content-Type'] = 'application/json'
 
@@ -197,7 +197,7 @@
       onMounted()
       {
         this.state.actions.login( this.state.userinfo ) //DP: cookie will be used if any
-        axios.get( './documents.json' )
+        axios.get( '/documents.json' )
           .then( ( response ) => {
             this.printLog( 'documents loaded' )
             this.update( { documents : response.data } )
