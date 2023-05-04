@@ -31,7 +31,7 @@
     "@rollup/plugin-node-resolve": "^15.0.2",
     "@rollup/plugin-terser": "^0.4.1",
     "browser-sync": "^2.29.1",
-    "rollup": "^3.21.3",
+    "rollup": "^3.21.4",
     "rollup-plugin-riot": "^6.0.0",
     "concurrently": "^8.0.1",
     "http-proxy-middleware": "^2.0.6",
