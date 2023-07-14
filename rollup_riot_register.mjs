@@ -10,7 +10,7 @@ export default ( paths = [], source = "riot:components" ) => {
       if( source !== id )
         return null
       const imp = [], reg = []
-      for( const path of await glob( paths ) ) {
+      for( const path of glob.sync( paths ) ) {
         const tokens = path.split( '/' )
         const last = tokens[ tokens.length - 1 ]
         const name = last.replace( /\.riot$/i, '' )

@@ -1,3 +1,3 @@
 call npm install
 call npm audit fix
-call npm run start
+call npm run watch

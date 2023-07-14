@@ -15,9 +15,7 @@
     "build": "rollup -c",
     "release": "rollup -c --environment mode:production",
     "prepublishOnly": "npm test",
-    "start": "concurrently --kill-others \"npm run watch\" \"npm run server\"",
     "watch": "rollup -c -w",
-    "server": "browser-sync start --config browsersync.config",
     "test": "nyc --require esm --require jsdom-global/register --require @riotjs/register mocha src/**/*.spec.js"
   },
   "keywords": [
@@ -27,15 +25,14 @@
   "devDependencies": {
     "@riotjs/compiler": "^6.4.2",
     "@riotjs/register": "^6.0.1",
-    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-commonjs": "^25.0.2",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "@rollup/plugin-terser": "^0.4.3",
-    "browser-sync": "^2.29.3",
-    "rollup": "^3.23.0",
+    "rollup-plugin-serve-proxy": "^1.1.4",
+    "rollup-plugin-livereload": "^2.0.5",
+    "rollup": "^3.26.2",
     "rollup-plugin-riot": "^6.0.0",
-    "concurrently": "^8.1.0",
-    "http-proxy-middleware": "^2.0.6",
-    "fast-glob": "^3.2.12"
+    "fast-glob": "^3.3.0"
   },
   "dependencies": {
     "riot": "^7.1.0",

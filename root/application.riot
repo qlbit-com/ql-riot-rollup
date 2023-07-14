@@ -119,12 +119,12 @@
             /*DP: your server call to run*/
           },
           save : ( doc, failCallback = ()=>{} ) => {
+            const data = Object.assign( { categoryId: null, signature:'', depends: [] }, doc )
             this.printLog( 'save triggered: document: ' + doc.text )
 
-/*DP: your server call to save your document
             this.printLog( 'saving document ' + JSON.stringify( data ) )
             const request = doc.id ? axios.put : axios.post
-            const url     = '/v0/db/doc' + ( doc.id ? '/' + doc.id : '' )
+            const url     = '/api/db/doc' + ( doc.id ? '/' + doc.id : '' )
             request( url, data )
               .then( ( response ) => {
                 if( response.data.id ) {
@@ -140,15 +140,13 @@
                 this.printLog( 'save failed: ' + errorMessage )
                 failCallback( errorMessage )
               } )
-*/
           },
           login : ( credentials, failCallback = ()=>{} )=> {
             this.printLog( 'login triggered; username = ' + credentials.username )
             this.state.userinfo.username = credentials.username //DP: do not store the password
             //DP: call server, server to provide cookie for authenticated communication
             failCallback( null ) //no errors
-/*
-            axios.post( '/v0/api/login', {}, { auth : credentials } )
+            axios.post( '/api/api/login', {}, { auth : credentials } )
               .then( ( response ) => {
                 this.state.userinfo = response.data
                 failCallback( null )
@@ -156,7 +154,6 @@
               .catch( ( error ) => {
                 failCallback( error.response.data )
               } )
-*/
           }
         }
         const actions = this.state.actions
